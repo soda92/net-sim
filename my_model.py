@@ -55,13 +55,13 @@ class MyGraph:
 
     def create_graph(self, num_nodes, minium_edges_per_node):
         "create random graph use barabasi_albert method"
-        graph: graph_tools.Graph = (
+        nx_graph: graph_tools.Graph = (
             graph_tools.generators.random_graphs.barabasi_albert_graph(
                 n=num_nodes, m=minium_edges_per_node
             )
         )
         self.nodes = [MyGraphNode(id_=i) for i in range(num_nodes)]
-        for edge in graph.edges():
+        for edge in nx_graph.edges():
             first, second = edge
             self.nodes[first].add_neighbor(self.nodes[second])
 
