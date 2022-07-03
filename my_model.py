@@ -72,9 +72,10 @@ class MyGraph:
         for index, node in enumerate(self.nodes):
             nx_graph.add_node(index)
             nx_node = nx_graph.nodes[index]
+            nx_node["source"] = node.name
             nx_node["node_state"] = node.node_state.name
             nx_node["active"] = node.active
-            nx_node["mass_frag"] = node.mass_frag
+            nx_node["mass_frag"] = ','.join(node.mass_frag)
             nx_node["mass_count"] = node.mass_count
             nx_node["mass_rarity"] = node.mass_rarity
             nx_node["node_emotion_self"] = node.node_emotion_self
@@ -95,3 +96,4 @@ if __name__ == "__main__":
     mygraph.create_graph(num_nodes=10, minium_edges_per_node=3)
     converted = mygraph.to_nx_graph()
     graph_tools.write_gexf(G=converted, path="converted.gexf")
+    graph_tools.write_graphml(G=converted, path="converted.graphml")

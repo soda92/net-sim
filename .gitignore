@@ -3,3 +3,5 @@ __pycache__
 *.gexf
 *.txt
 test.ipynb
+*.graphml
+*.cys
