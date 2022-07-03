@@ -17,6 +17,7 @@ class MyGraphNode:  # pylint: disable=too-many-instance-attributes
     """Graph nodes"""
 
     def __init__(self, id_: int):
+        self.id_ = id_
         self.name = f"node#{id_}"
         self.node_state: Info = Info.INFO_S
         self.active: float = 0
@@ -66,9 +67,31 @@ class MyGraph:
             self.nodes[first].add_neighbor(self.nodes[second])
 
     def to_nx_graph(self) -> graph_tools.Graph:
-        pass
+        "convert to networkx graph format"
+        nx_graph = graph_tools.Graph()
+        for index, node in enumerate(self.nodes):
+            nx_graph.add_node(index)
+            nx_node = nx_graph.nodes[index]
+            nx_node["node_state"] = node.node_state.name
+            nx_node["active"] = node.active
+            nx_node["mass_frag"] = node.mass_frag
+            nx_node["mass_count"] = node.mass_count
+            nx_node["mass_rarity"] = node.mass_rarity
+            nx_node["node_emotion_self"] = node.node_emotion_self
+            nx_node["node_emotion_neighbor"] = node.node_emotion_neighbor
+            nx_node["emotion_value"] = node.emotion_value
+
+        for node in self.nodes:
+            for neighbor in node.neighbors:
+                nx_graph.add_edge(node.id_, neighbor.id_)
+        return nx_graph
+
+    # def from_nx_graph(self, nx_graph: graph_tools.Graph):
+    #     self.nodes = [MyGraphNode(id_=i) for i in range(len(nx_graph.nodes))]
 
 
 if __name__ == "__main__":
-    graph = MyGraph()
-    graph.create_graph(num_nodes=10, minium_edges_per_node=3)
+    mygraph = MyGraph()
+    mygraph.create_graph(num_nodes=10, minium_edges_per_node=3)
+    converted = mygraph.to_nx_graph()
+    graph_tools.write_gexf(G=converted, path="converted.gexf")
