@@ -24,7 +24,7 @@ class MyGraphNode:  # pylint: disable=too-many-instance-attributes
         self.node_state_next: Info = Info.INFO_S
         self.active: float = 0
 
-        self.mass_frag: list[Info] = []
+        self.mass_frag: set[Info] = set()
         "已知的信息片段列表，初始为空"
         self.mass_count: float = 0
         "信息耦合值"
@@ -110,6 +110,7 @@ class MyGraph:
                     spread_rate = 0.5
                     if random.random() > spread_rate:
                         neighbor.node_state_next = node.node_state
+                        neighbor.mass_frag.add(node.node_state)
         for node in self.nodes:
             if node.node_state_next != Info.INFO_S:
                 node.node_state = node.node_state_next
@@ -120,11 +121,34 @@ class MyGraph:
         for _ in range(times):
             self.clock()
 
+def select_nodes_to_spread(graph: MyGraph, node_indexes: list[int], info: Info) -> MyGraph:
+    for node_index in node_indexes:
+        node = graph.nodes[node_index]
+        node.node_state = info
+        node.mass_frag.add(info)
+    return graph
+
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%m/%d/%Y %I:%M:%S %p",
+)
 
 if __name__ == "__main__":
+    logging.info("starting...")
     mygraph = MyGraph()
-    mygraph.create_graph(num_nodes=100, minium_edges_per_node=3)
-    mygraph.nodes[0].node_state = Info.INFO1
-    mygraph.clockn(3)
+    mygraph.create_graph(num_nodes=5000, minium_edges_per_node=3)
+    mygraph = select_nodes_to_spread(graph=mygraph, node_indexes=[0], info = Info.INFO1)
+    mygraph.clockn(40)
+    result = []
+    for node in mygraph.nodes:
+        if node.node_state == Info.INFO1:
+            result.append(node)
+        if Info.INFO1 in node.mass_frag:
+            pass
+
+    mygraph = select_nodes_to_spread(graph=mygraph, node_indexes=[3], info = Info.INFO2)
+    mygraph.clockn(4)
     converted = mygraph.to_nx_graph()
     graph_tools.write_graphml(G=converted, path="converted.graphml")
